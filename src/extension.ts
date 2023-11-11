@@ -1,21 +1,22 @@
-'use strict'
+'use strict';
 
-import * as vscode from 'vscode'
+import { workspace, window, commands, Uri, ExtensionContext } from 'vscode';
 import { DependencyProvider } from './DependencyProvider';
 
-export function activate(context: vscode.ExtensionContext) {
-  const fsPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-    ? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
+export function activate(context: ExtensionContext) {
+  const path = (workspace.workspaceFolders && (workspace.workspaceFolders.length > 0))
+    ? workspace.workspaceFolders[0].uri.fsPath
+    : undefined;
   
-  const nodeDependenciesProvider = new DependencyProvider(fsPath);
+  const nodeDependenciesProvider = new DependencyProvider(path);
   
-  vscode.window.registerTreeDataProvider('nodeDependencies', nodeDependenciesProvider);
+  window.registerTreeDataProvider('nodeDependencies', nodeDependenciesProvider);
   
-  vscode.commands.registerCommand('nodeDependencies.refreshEntry', () => {
-    nodeDependenciesProvider.refresh()
+  commands.registerCommand('nodeDependencies.refreshEntry', () => {
+    nodeDependenciesProvider.refresh();
   });
   
-  vscode.commands.registerCommand('extension.openPackageOnNpm', moduleName => {
-    vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(`https://www.npmjs.com/package/${moduleName}`))
+  commands.registerCommand('extension.openPackageOnNpm', moduleName => {
+    commands.executeCommand('vscode.open', Uri.parse(`https://www.npmjs.com/package/${moduleName}`));
   });
 }

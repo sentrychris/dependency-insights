@@ -1,18 +1,18 @@
-import * as path from 'path';
-import * as vscode from 'vscode';
+import { join } from 'path';
+import { Command, TreeItem, TreeItemCollapsibleState } from 'vscode';
 
-export class DependencyType extends vscode.TreeItem {
+export class DependencyType extends TreeItem {
   constructor(
     public readonly label: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly command?: vscode.Command
+    public readonly collapsibleState: TreeItemCollapsibleState,
+    public readonly command?: Command
   ) {
     super(label, collapsibleState);
   }
 
   iconPath = {
-    light: path.join(__dirname, 'media', 'npm-3.svg'),
-    dark: path.join(__dirname, 'media', 'npm-3.svg')
+    light: join(__dirname, 'media', 'npm-3.svg'),
+    dark: join(__dirname, 'media', 'npm-3.svg')
   };
   
   contextValue = 'dependency-type';

@@ -1,6 +1,13 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import * as vscode from 'vscode';
+import {
+  Event,
+  EventEmitter,
+  TreeDataProvider,
+  TreeItem,
+  TreeItemCollapsibleState,
+  window
+} from 'vscode';
+import { join } from 'path';
+import { accessSync, readFileSync } from 'fs';
 import { Dependency } from './Dependency';
 import { VersionCheck } from './VersionCheck';
 import { DependencyType } from './DependencyType';
@@ -8,10 +15,10 @@ import { DependencyType } from './DependencyType';
 const DEPENDENCIES = 'dependencies';
 const DEV_DEPENDENCIES = 'dev dependencies';
 
-export class DependencyProvider implements vscode.TreeDataProvider<DependencyType> {
+export class DependencyProvider implements TreeDataProvider<DependencyType> {
   
-  private _onDidChangeTreeData: vscode.EventEmitter<DependencyType | undefined | void> = new vscode.EventEmitter<DependencyType | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<DependencyType | undefined | void> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: EventEmitter<DependencyType | undefined | void> = new EventEmitter<DependencyType | undefined | void>();
+  readonly onDidChangeTreeData: Event<DependencyType | undefined | void> = this._onDidChangeTreeData.event;
   
   private versionCheck: VersionCheck = new VersionCheck;
   
@@ -22,32 +29,32 @@ export class DependencyProvider implements vscode.TreeDataProvider<DependencyTyp
     this._onDidChangeTreeData.fire();
   }
   
-  getTreeItem(element: DependencyType): vscode.TreeItem {
+  getTreeItem(element: DependencyType): TreeItem {
     return element;
   }
   
   getChildren(element?: DependencyType): Thenable<DependencyType[]> {
     if (! this.workspaceRoot) {
-      vscode.window.showInformationMessage('No dependencies in empty workspace');
+      window.showInformationMessage('No dependencies in empty workspace');
       return Promise.resolve([]);
     }
     
     if (element) {
       console.log({ element })
-      const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
+      const packageJsonPath = join(this.workspaceRoot, 'package.json');
       
       if (this.pathExists(packageJsonPath)) {
           return Promise.resolve(
             this.fetchFromPackageJson(packageJsonPath, element.label)
           );
       } else {
-          vscode.window.showInformationMessage('Workspace has no package.json');
+          window.showInformationMessage('Workspace has no package.json');
           return Promise.resolve([]);
       }
     } else {
       return Promise.resolve([
-        new DependencyType('dependencies', vscode.TreeItemCollapsibleState.Collapsed),
-        new DependencyType('dev dependencies', vscode.TreeItemCollapsibleState.Collapsed)
+        new DependencyType('dependencies', TreeItemCollapsibleState.Collapsed),
+        new DependencyType('dev dependencies', TreeItemCollapsibleState.Collapsed)
       ]);
     }
     
@@ -56,12 +63,12 @@ export class DependencyProvider implements vscode.TreeDataProvider<DependencyTyp
   private fetchFromPackageJson(packageJsonPath: string, element: string): Dependency[] {
     console.log(packageJsonPath, element);
     if (this.pathExists(packageJsonPath)) {
-      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+      const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
       
       const toDependency = (module: string, version: string): Dependency => {
         const insight = this.versionCheck.setInsight(module, version);
         
-        return new Dependency(module, version, insight, vscode.TreeItemCollapsibleState.None, {
+        return new Dependency(module, version, insight, TreeItemCollapsibleState.None, {
           command: 'extension.openPackageOnNpm',
           title: '',
           arguments: [module]
@@ -86,7 +93,7 @@ export class DependencyProvider implements vscode.TreeDataProvider<DependencyTyp
   
   private pathExists(p: string): boolean {
     try {
-      fs.accessSync(p);
+      accessSync(p);
     } catch (err) {
       return false;
     }
