@@ -68,17 +68,17 @@ export class DependencyProvider implements vscode.TreeDataProvider<DependencyTyp
         });
       };
       
-      const deps = packageJson.dependencies
-        ? Object.keys(packageJson.dependencies).map(dep => toDependency(dep, packageJson.dependencies[dep]))
-        : [];
-      
-      const devDeps = packageJson.devDependencies
-        ? Object.keys(packageJson.devDependencies).map(dep => toDependency(dep, packageJson.devDependencies[dep]))
-        : [];
+      if (element === DEPENDENCIES) {
+        return packageJson.dependencies
+          ? Object.keys(packageJson.dependencies).map(dep => toDependency(dep, packageJson.dependencies[dep]))
+          : [];
+      }
 
-      console.log({ deps, devDeps, element });
-
-      return element === DEPENDENCIES ? deps : devDeps;
+      if (element === DEV_DEPENDENCIES) {
+        return packageJson.devDependencies
+          ? Object.keys(packageJson.devDependencies).map(dep => toDependency(dep, packageJson.devDependencies[dep]))
+          : [];
+      }
     } else {
       return [];
     }
