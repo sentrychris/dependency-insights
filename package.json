@@ -38,7 +38,6 @@
 			"activitybar": [
 				{
 					"id": "package-explorer",
-					"title": "Package Explorer",
 					"icon": "media/dep.svg"
 				}
 			]
@@ -48,8 +47,7 @@
 				{
 					"id": "nodeDependencies",
 					"name": "NPM Dependencies",
-					"icon": "media/dep.svg",
-					"contextualTitle": "Package Explorer"
+					"icon": "media/dep.svg"
 				}
 			]
 		},
