@@ -53,8 +53,8 @@ export class DependencyProvider implements TreeDataProvider<DependencyType> {
       }
     } else {
       return Promise.resolve([
-        new DependencyType('dependencies', TreeItemCollapsibleState.Collapsed),
-        new DependencyType('dev dependencies', TreeItemCollapsibleState.Collapsed)
+        new DependencyType('dependencies', TreeItemCollapsibleState.Expanded),
+        new DependencyType('dev dependencies', TreeItemCollapsibleState.Expanded)
       ]);
     }
     
