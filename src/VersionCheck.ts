@@ -17,7 +17,10 @@ export class VersionCheck {
           console.log(`${module} is outdated, current version: ${version.replace('^', '')}, latest: ${latest}`)
         }
 
-        return latest;
+        return {
+          latest,
+          outdated: this.checkVersion(version.replace('^', ''), latest) < 0
+        };
       }
     }
   }

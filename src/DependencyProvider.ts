@@ -59,9 +59,9 @@ export class DependencyProvider implements vscode.TreeDataProvider<DependencyTyp
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
       
       const toDependency = (module: string, version: string): Dependency => {
-        const latest = this.versionCheck.setInsight(module, version);
+        const insight = this.versionCheck.setInsight(module, version);
         
-        return new Dependency(module, version, latest, vscode.TreeItemCollapsibleState.None, {
+        return new Dependency(module, version, insight, vscode.TreeItemCollapsibleState.None, {
           command: 'extension.openPackageOnNpm',
           title: '',
           arguments: [module]
