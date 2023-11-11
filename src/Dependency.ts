@@ -19,7 +19,7 @@ export class Dependency extends vscode.TreeItem {
 
     this.description = this.version;
     if (! versionIsLatest) {
-      this.description += ` ⇄ ^${this.latest}`
+      this.description += ` ⇄ ^${this.latest} (update available)`
     }
   }
 

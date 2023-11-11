@@ -3,11 +3,15 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Dependency } from './Dependency';
 import { VersionCheck } from './VersionCheck';
+import { DependencyType } from './DependencyType';
 
-export class DependencyProvider implements vscode.TreeDataProvider<Dependency> {
+const DEPENDENCIES = 'dependencies';
+const DEV_DEPENDENCIES = 'dev dependencies';
+
+export class DependencyProvider implements vscode.TreeDataProvider<DependencyType> {
   
-  private _onDidChangeTreeData: vscode.EventEmitter<Dependency | undefined | void> = new vscode.EventEmitter<Dependency | undefined | void>();
-  readonly onDidChangeTreeData: vscode.Event<Dependency | undefined | void> = this._onDidChangeTreeData.event;
+  private _onDidChangeTreeData: vscode.EventEmitter<DependencyType | undefined | void> = new vscode.EventEmitter<DependencyType | undefined | void>();
+  readonly onDidChangeTreeData: vscode.Event<DependencyType | undefined | void> = this._onDidChangeTreeData.event;
   
   private versionCheck: VersionCheck = new VersionCheck;
   
@@ -18,37 +22,39 @@ export class DependencyProvider implements vscode.TreeDataProvider<Dependency> {
     this._onDidChangeTreeData.fire();
   }
   
-  getTreeItem(element: Dependency): vscode.TreeItem {
+  getTreeItem(element: DependencyType): vscode.TreeItem {
     return element;
   }
   
-  getChildren(element?: Dependency): Thenable<Dependency[]> {
-    if (!this.workspaceRoot) {
+  getChildren(element?: DependencyType): Thenable<DependencyType[]> {
+    if (! this.workspaceRoot) {
       vscode.window.showInformationMessage('No dependencies in empty workspace');
       return Promise.resolve([]);
     }
     
     if (element) {
-      return Promise.resolve(
-        this.fetchFromPackageJson(
-          path.join(this.workspaceRoot, 'node_modules', element.label, 'package.json')
-        )
-      );
-    } else {
+      console.log({ element })
       const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
+      
       if (this.pathExists(packageJsonPath)) {
-        return Promise.resolve(
-          this.fetchFromPackageJson(packageJsonPath)
-        );
+          return Promise.resolve(
+            this.fetchFromPackageJson(packageJsonPath, element.label)
+          );
       } else {
-        vscode.window.showInformationMessage('Workspace has no package.json');
-        return Promise.resolve([]);
+          vscode.window.showInformationMessage('Workspace has no package.json');
+          return Promise.resolve([]);
       }
+    } else {
+      return Promise.resolve([
+        new DependencyType('dependencies', vscode.TreeItemCollapsibleState.Collapsed),
+        new DependencyType('dev dependencies', vscode.TreeItemCollapsibleState.Collapsed)
+      ]);
     }
     
   }
   
-  private fetchFromPackageJson(packageJsonPath: string): Dependency[] {
+  private fetchFromPackageJson(packageJsonPath: string, element: string): Dependency[] {
+    console.log(packageJsonPath, element);
     if (this.pathExists(packageJsonPath)) {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
       
@@ -69,8 +75,10 @@ export class DependencyProvider implements vscode.TreeDataProvider<Dependency> {
       const devDeps = packageJson.devDependencies
         ? Object.keys(packageJson.devDependencies).map(dep => toDependency(dep, packageJson.devDependencies[dep]))
         : [];
-        
-      return deps.concat(devDeps);
+
+      console.log({ deps, devDeps, element });
+
+      return element === DEPENDENCIES ? deps : devDeps;
     } else {
       return [];
     }
