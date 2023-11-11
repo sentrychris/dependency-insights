@@ -1,17 +1,25 @@
-import * as child from 'child_process';
+import { execSync } from 'child_process';
 
 export class VersionCheck {
 
   constructor() {}
   
-  public setInsight (module: string, version: string): void {
-    child.exec(`npm show ${module} version`, (err, stdout, stderr) => {
-      if (stdout !== '') {
-        if (this.checkVersion(version.replace('^', ''), stdout.trim()) < 0) {
-          console.log(`${module} is outdated, current version: ${version.replace('^', '')}, latest: ${stdout.trim()}`)
+  public setInsight (module: string, version: string) {
+    const stdout = execSync(`npm view ${module} version`, {
+      encoding: 'utf-8'
+    });
+
+    if (stdout) {
+      const latest = stdout.trim();
+
+      if (latest !== '') {
+        if (this.checkVersion(version.replace('^', ''), latest) < 0) {
+          console.log(`${module} is outdated, current version: ${version.replace('^', '')}, latest: ${latest}`)
         }
+
+        return latest;
       }
-    })
+    }
   }
   
   private checkVersion(currentVersion: string, nextVersion: string): number {

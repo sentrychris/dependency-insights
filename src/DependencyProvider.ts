@@ -24,16 +24,22 @@ export class DependencyProvider implements vscode.TreeDataProvider<Dependency> {
   
   getChildren(element?: Dependency): Thenable<Dependency[]> {
     if (!this.workspaceRoot) {
-      vscode.window.showInformationMessage('No dependency in empty workspace');
+      vscode.window.showInformationMessage('No dependencies in empty workspace');
       return Promise.resolve([]);
     }
     
     if (element) {
-      return Promise.resolve(this.fetchFromPackageJson(path.join(this.workspaceRoot, 'node_modules', element.label, 'package.json')));
+      return Promise.resolve(
+        this.fetchFromPackageJson(
+          path.join(this.workspaceRoot, 'node_modules', element.label, 'package.json')
+        )
+      );
     } else {
       const packageJsonPath = path.join(this.workspaceRoot, 'package.json');
       if (this.pathExists(packageJsonPath)) {
-        return Promise.resolve(this.fetchFromPackageJson(packageJsonPath));
+        return Promise.resolve(
+          this.fetchFromPackageJson(packageJsonPath)
+        );
       } else {
         vscode.window.showInformationMessage('Workspace has no package.json');
         return Promise.resolve([]);
@@ -47,17 +53,13 @@ export class DependencyProvider implements vscode.TreeDataProvider<Dependency> {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
       
       const toDependency = (module: string, version: string): Dependency => {
-        this.versionCheck.setInsight(module, version);
+        const latest = this.versionCheck.setInsight(module, version);
         
-        if (this.pathExists(path.join(this.workspaceRoot, 'node_modules', module))) {
-          return new Dependency(module, version, vscode.TreeItemCollapsibleState.Collapsed);
-        } else {
-          return new Dependency(module, version, vscode.TreeItemCollapsibleState.None, {
-            command: 'extension.openPackageOnNpm',
-            title: '',
-            arguments: [module]
-          });
-        }
+        return new Dependency(module, version, latest, vscode.TreeItemCollapsibleState.None, {
+          command: 'extension.openPackageOnNpm',
+          title: '',
+          arguments: [module]
+        });
       };
       
       const deps = packageJson.dependencies

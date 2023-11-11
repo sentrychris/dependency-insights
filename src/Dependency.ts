@@ -5,17 +5,31 @@ export class Dependency extends vscode.TreeItem {
   constructor(
     public readonly label: string,
     private readonly version: string,
+    public readonly latest: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
     public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState);
-    this.tooltip = `${this.label}-${this.version}`;
+
+    const versionIsLatest = this.isLatest(version, latest);
+
+    this.tooltip = ! versionIsLatest
+      ? `Update available: ${this.latest}`
+      : `Package is latest version`;
+
     this.description = this.version;
+    if (! versionIsLatest) {
+      this.description += ` ⇄ ^${this.latest}`
+    }
+  }
+
+  isLatest (current: string, latest: string) {
+    return (current.replace('^', '') === latest.replace('^', ''))
   }
     
   iconPath = {
-    light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'dependency.svg'),
-    dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'dependency.svg')
+    light: path.join(__dirname, 'media', 'npm-3.svg'),
+    dark: path.join(__dirname, 'media', 'npm-3.svg')
   };
   
   contextValue = 'dependency';
