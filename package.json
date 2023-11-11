@@ -1,0 +1,107 @@
+{
+  "name": "dependency-insights",
+  "displayName": "VScode dependency insights",
+  "version": "0.0.1",
+  "description": "Gain useful insight into application dependencies",
+  "publisher": "Chris Rowles",
+  "repository": {
+    "type": "git",
+		"url": "https://github.com/sentrychris/dependency-insights"
+  },
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jsonc-parser": "^3.2.0",
+    "minimist": "^1.2.8",
+    "mkdirp": "^3.0.1",
+    "rimraf": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@types/vscode": "^1.84.1",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+		"vscode": "^1.84.2"
+	},
+	"categories": [
+		"Other"
+	],
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "package-explorer",
+					"title": "Package Explorer",
+					"icon": "media/dep.svg"
+				}
+			]
+		},
+		"views": {
+			"package-explorer": [
+				{
+					"id": "nodeDependencies",
+					"name": "Node Dependencies",
+					"icon": "media/dep.svg",
+					"contextualTitle": "Package Explorer"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "nodeDependencies.refreshEntry",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "nodeDependencies.addEntry",
+				"title": "Add"
+			},
+			{
+				"command": "nodeDependencies.editEntry",
+				"title": "Edit",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			},
+			{
+				"command": "nodeDependencies.deleteEntry",
+				"title": "Delete"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "nodeDependencies.refreshEntry",
+					"when": "view == nodeDependencies",
+					"group": "navigation"
+				},
+				{
+					"command": "nodeDependencies.addEntry",
+					"when": "view == nodeDependencies"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "nodeDependencies.editEntry",
+					"when": "view == nodeDependencies && viewItem == dependency",
+					"group": "inline"
+				},
+				{
+					"command": "nodeDependencies.deleteEntry",
+					"when": "view == nodeDependencies && viewItem == dependency"
+				}
+			]
+		}
+	}
+}
